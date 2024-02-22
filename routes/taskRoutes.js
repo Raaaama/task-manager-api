@@ -34,9 +34,7 @@ const extractUserId = (req) => {
 router.post('/get-user-tasks', verifyToken, async (req, res) => {
   try {
     var userId = new mongoose.Types.ObjectId(extractUserId(req));
-    console.log(userId)
     const tasks = await Task.find({ user: userId });
-    console.log(tasks)
     res.json(tasks);
   } catch (error) {
     console.error('Error fetching tasks:', error);
@@ -80,11 +78,10 @@ router.post('/add-task', verifyToken, async (req, res) => {
 // Update a task for the authenticated user
 router.put('/:taskId', verifyToken, async (req, res) => {
   try {
-    const { title, description, completed, importance } = req.body;
-    const taskId = req.params.taskId;
+    const { taskId, title, description, completed, important } = req.body;
 
     // Find the task by ID and ensure it belongs to the authenticated user
-    const task = await Task.findOne({ _id: taskId, user: req.userId });
+    const task = await Task.findOne({ _id: taskId });
     if (!task) {
       return res.status(404).json({ error: 'Task not found' });
     }
@@ -93,7 +90,7 @@ router.put('/:taskId', verifyToken, async (req, res) => {
     if (title) task.title = title;
     if (description) task.description = description;
     if (completed !== undefined) task.completed = !!completed;
-    if (importance !== undefined) task.importance = !!importance;
+    if (important !== undefined) task.important = !!important;
 
     // Save the updated task
     await task.save();
@@ -112,13 +109,10 @@ router.delete('/:taskId', verifyToken, async (req, res) => {
     const taskId = req.params.taskId;
 
     // Find the task by ID and ensure it belongs to the authenticated user
-    const task = await Task.findOne({ _id: taskId, user: req.userId });
+    const task = await Task.findByIdAndDelete({ _id: taskId });
     if (!task) {
       return res.status(404).json({ error: 'Task not found' });
     }
-
-    // Delete the task
-    await task.remove();
 
     // Respond with a success message
     res.json({ message: 'Task deleted successfully' });
