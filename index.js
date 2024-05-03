@@ -9,11 +9,12 @@ const app = express();
 app.use(express.json());
 
 // Connect to MongoDB
-mongoose.connect("mongodb://127.0.0.1:27017/taskmanager")
+mongoose
+  .connect("mongodb://127.0.0.1:27017/taskmanager")
   .then(() => {
     console.log("Connected to MongoDB");
   })
-  .catch(error => {
+  .catch((error) => {
     console.error("Error connecting to MongoDB:", error);
   });
 
@@ -22,7 +23,7 @@ app.use("/users", userRoutes);
 app.use("/tasks", taskRoutes);
 
 // Start the server
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
